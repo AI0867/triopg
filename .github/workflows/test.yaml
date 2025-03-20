@@ -1,0 +1,31 @@
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+  push:
+    branches:
+      - master
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.2"
+      - uses: actions/checkout@v4
+      - run: pip install -e .
+      - run: pip install -r test-requirements.txt
+      - run: pytest triopg
